@@ -108,25 +108,10 @@ endif()
 
 
 cuda_add_library(gdf SHARED
-    src/binaryops.cu
-    src/bitmaskops.cu
     src/column.cpp
     src/cudautils.cu
-    src/datetimeops.cu
     src/errorhandling.cpp
-    src/filterops.cu
-    src/hashing.cu
-    src/hashops.cu
     src/ipc.cu
-    src/joining.cu
-    src/reductions.cu
-    src/scan.cu
-    src/segmented_sorting.cu
-    src/sorting.cu
-    src/sqls_ops.cu
-    src/streamcompactionops.cu
-    src/unaryops.cu
-    #src/windowedops.cu
 )
 
 
