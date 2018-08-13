@@ -38,9 +38,5 @@ enable_testing()
 # -------------------
 message(STATUS "******** Configuring tests ********")
 
-# add_subdirectory(foo-sample)
-# add_subdirectory(datetime)
-# add_subdirectory(hashing)
-# add_subdirectory(sqls)
 
 message(STATUS "******** Tests are ready ********")
