@@ -15,9 +15,9 @@ else:
         if os.name == 'posix':
             # TODO this will need to be changed when packaged for distribution
             if sys.platform == 'darwin':
-                path = 'libgdf.dylib'
+                path = 'libgdf-arrow.dylib'
             else:
-                path = 'libgdf.so'
+                path = 'libgdf-arrow.so'
         else:
             raise NotImplementedError('OS {} not supported'.format(os.name))
         # Prefer local version of the library if it exists
