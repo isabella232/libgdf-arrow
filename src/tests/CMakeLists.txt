@@ -38,5 +38,4 @@ enable_testing()
 # -------------------
 message(STATUS "******** Configuring tests ********")
 
-
 message(STATUS "******** Tests are ready ********")
