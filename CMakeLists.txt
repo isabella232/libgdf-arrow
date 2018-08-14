@@ -24,7 +24,7 @@
 #    $ make pytest-ci    # trigger test with jUnit.xml output
 #    $ make install      # install libgdf
 
-PROJECT(libgdf)
+PROJECT(libgdf_arrow)
 
 cmake_minimum_required(VERSION 2.8)  # not sure about version required
 
@@ -107,7 +107,7 @@ if(HT_LEGACY_ALLOCATOR)
 endif()
 
 
-cuda_add_library(gdf SHARED
+cuda_add_library(gdf_arrow SHARED
     src/column.cpp
     src/cudautils.cu
     src/errorhandling.cpp
@@ -116,9 +116,9 @@ cuda_add_library(gdf SHARED
 
 if (ARROW_NUMERIC_VERSION EQUAL 900)
   # arrow-0.9 requires boost_regex
-  target_link_libraries(gdf arrow boost_regex)
+  target_link_libraries(gdf_arrow arrow boost_regex)
 else()
-  target_link_libraries(gdf arrow)
+  target_link_libraries(gdf_arrow arrow)
 endif()
 
 # Command to symlink files into the build directory
@@ -155,7 +155,7 @@ add_custom_command(TARGET pytest POST_BUILD
                    WORKING_DIRECTORY --cache-clear --junitxml=junit.xml tests)
 
 # The install target
-install(TARGETS gdf LIBRARY DESTINATION lib)
+install(TARGETS gdf_arrow LIBRARY DESTINATION lib)
 install(DIRECTORY include/gdf DESTINATION include)
 
 # Configure the C++ tests
