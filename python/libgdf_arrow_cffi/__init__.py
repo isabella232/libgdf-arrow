@@ -3,11 +3,11 @@ from __future__ import absolute_import
 import os
 import sys
 
-from .wrapper import _libgdf_wrapper
-from .wrapper import GDFError           # re-exported
+from .wrapper import _libgdf_arrow_wrapper
+from .wrapper import GDFARROWError           # re-exported
 
 try:
-    from .libgdf_cffi import ffi
+    from .libgdf_arrow_cffi import ffi
 except ImportError:
     pass
 else:
@@ -27,7 +27,7 @@ else:
         else:
             return path
 
-    libgdf_api = ffi.dlopen(_get_lib_name())
-    libgdf = _libgdf_wrapper(ffi, libgdf_api)
+    libgdf_arrow_api = ffi.dlopen(_get_lib_name())
+    libgdf_arrow = _libgdf_arrow_wrapper(ffi, libgdf_arrow_api)
 
-    del _libgdf_wrapper
+    del _libgdf_arrow_wrapper

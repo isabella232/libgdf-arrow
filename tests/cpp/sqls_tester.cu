@@ -26,18 +26,18 @@
 #include <cassert>
 #include <type_traits>
 
-#include <gdf/gdf.h>
-#include <gdf/utils.h>
-#include <gdf/errorutils.h>
+#include <gdf-arrow/gdf-arrow.h>
+#include <gdf-arrow/utils.h>
+#include <gdf-arrow/errorutils.h>
 
 
 #include "sqls_rtti_comp.hpp"
 
-extern gdf_error gdf_filter(size_t nrows,
-		     gdf_column* cols,
+extern gdf_arrow_error gdf_arrow_filter(size_t nrows,
+		     gdf_arrow_column* cols,
 		     size_t ncols,
-		     void** d_cols,//device-side data slicing of gdf_column array (host)
-		     int* d_types, //device-side dtype slicing of gdf_column array (host)
+		     void** d_cols,//device-side data slicing of gdf_arrow_column array (host)
+		     int* d_types, //device-side dtype slicing of gdf_arrow_column array (host)
 		     void** d_vals,
 		     size_t* d_indx,
 		     size_t* new_sz);
@@ -125,18 +125,18 @@ void f_test_multi_filter(void)
   Vector<int>   d_types(ncols, 0);
   Vector<size_t> d_indx(nrows, 0);
 
-  std::vector<gdf_column> v_gdf_cols(ncols);
-  v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-  v_gdf_cols[0].size = sizeof(int);
-  v_gdf_cols[0].dtype = GDF_INT32;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+  v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+  v_gdf_arrow_cols[0].size = sizeof(int);
+  v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-  v_gdf_cols[1].size = sizeof(int);
-  v_gdf_cols[1].dtype = GDF_INT32;
+  v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+  v_gdf_arrow_cols[1].size = sizeof(int);
+  v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-  v_gdf_cols[2].size = sizeof(double);
-  v_gdf_cols[2].dtype = GDF_FLOAT64;
+  v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+  v_gdf_arrow_cols[2].size = sizeof(double);
+  v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
   std::vector<void*> v_vals{static_cast<void*>(d_ci.data().get()),
                             static_cast<void*>(d_cj.data().get()),
@@ -144,13 +144,13 @@ void f_test_multi_filter(void)
 
   Vector<void*> d_vals = v_vals;
 
-  gdf_column* h_columns = &v_gdf_cols[0];
+  gdf_arrow_column* h_columns = &v_gdf_arrow_cols[0];
   void** d_col_data = d_cols.data().get();
   int* d_col_types = d_types.data().get();
   size_t* ptr_d_indx = d_indices.data().get();
   void** ptr_d_vals = d_vals.data().get();
 
-  gdf_filter(nrows, h_columns, ncols, d_col_data, d_col_types, ptr_d_vals, ptr_d_indx, &new_sz);
+  gdf_arrow_filter(nrows, h_columns, ncols, d_col_data, d_col_types, ptr_d_vals, ptr_d_indx, &new_sz);
 
   bool res = (new_sz > 0);
 
@@ -165,19 +165,19 @@ void f_test_multi_filter(void)
 
 
 
-extern gdf_error gdf_order_by(size_t nrows,     //in: # rows
-                              gdf_column* cols, //in: host-side array of gdf_columns
+extern gdf_arrow_error gdf_arrow_order_by(size_t nrows,     //in: # rows
+                              gdf_arrow_column* cols, //in: host-side array of gdf_arrow_columns
                               size_t ncols,     //in: # cols
-                              void** d_cols,    //out: pre-allocated device-side array to be filled with gdf_column::data for each column; slicing of gdf_column array (host)
-                              int* d_types,     //out: pre-allocated device-side array to be filled with gdf_colum::dtype for each column; slicing of gdf_column array (host)
+                              void** d_cols,    //out: pre-allocated device-side array to be filled with gdf_arrow_column::data for each column; slicing of gdf_arrow_column array (host)
+                              int* d_types,     //out: pre-allocated device-side array to be filled with gdf_arrow_colum::dtype for each column; slicing of gdf_arrow_column array (host)
                               size_t* d_indx);   //out: device-side array of re-rdered row indices
 
 
-extern gdf_error gdf_filter(size_t nrows,     //in: # rows
-                            gdf_column* cols, //in: host-side array of gdf_columns
+extern gdf_arrow_error gdf_arrow_filter(size_t nrows,     //in: # rows
+                            gdf_arrow_column* cols, //in: host-side array of gdf_arrow_columns
                             size_t ncols,     //in: # cols
-                            void** d_cols,    //out: pre-allocated device-side array to be filled with gdf_column::data for each column; slicing of gdf_column array (host)
-                            int* d_types,     //out: pre-allocated device-side array to be filled with gdf_colum::dtype for each column; slicing of gdf_column array (host)
+                            void** d_cols,    //out: pre-allocated device-side array to be filled with gdf_arrow_column::data for each column; slicing of gdf_arrow_column array (host)
+                            int* d_types,     //out: pre-allocated device-side array to be filled with gdf_arrow_colum::dtype for each column; slicing of gdf_arrow_column array (host)
                             void** d_vals,    //in: device-side array of values to filter against (type-erased)
                             size_t* d_indx,   //out: device-side array of row indices that remain after filtering
                             size_t* new_sz);   //out: host-side # rows that remain after filtering
@@ -205,30 +205,30 @@ void test_gb_sum_api_2(const std::vector<int>& vc1,
   Vector<void*> d_cols(ncols, nullptr);
   Vector<int>   d_types(ncols, 0);
 
-  std::vector<gdf_column> v_gdf_cols(ncols);
-  v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-  v_gdf_cols[0].size = nrows;
-  v_gdf_cols[0].dtype = GDF_INT32;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+  v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+  v_gdf_arrow_cols[0].size = nrows;
+  v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-  v_gdf_cols[1].size = nrows;
-  v_gdf_cols[1].dtype = GDF_INT32;
+  v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+  v_gdf_arrow_cols[1].size = nrows;
+  v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-  v_gdf_cols[2].size = nrows;
-  v_gdf_cols[2].dtype = GDF_FLOAT64;
+  v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+  v_gdf_arrow_cols[2].size = nrows;
+  v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
 
-  gdf_column c_agg;
-  gdf_column c_vout;
+  gdf_arrow_column c_agg;
+  gdf_arrow_column c_vout;
 
   Vector<double> d_outd(sz, 0);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   c_agg.data = dd1.data().get();
   c_agg.size = nrows;
 
-  c_vout.dtype = GDF_FLOAT64;
+  c_vout.dtype = GDF_ARROW_FLOAT64;
   c_vout.data = d_outd.data().get();
   c_vout.size = nrows;
 
@@ -240,13 +240,13 @@ void test_gb_sum_api_2(const std::vector<int>& vc1,
 
   //input
   //{
-  gdf_context ctxt{0, GDF_SORT, 0};
-  std::vector<gdf_column*> v_pcols(ncols);
+  gdf_arrow_context ctxt{0, GDF_ARROW_SORT, 0};
+  std::vector<gdf_arrow_column*> v_pcols(ncols);
   for(int i = 0; i < ncols; ++i)
     {
-      v_pcols[i] = &v_gdf_cols[i];
+      v_pcols[i] = &v_gdf_arrow_cols[i];
     }
-  gdf_column** cols = &v_pcols[0];//pointer semantic (2);
+  gdf_arrow_column** cols = &v_pcols[0];//pointer semantic (2);
   //}
 
   //output:
@@ -255,33 +255,33 @@ void test_gb_sum_api_2(const std::vector<int>& vc1,
   Vector<int32_t> d_vi_out(nrows);
   Vector<double> d_vd_out(nrows);
     
-  std::vector<gdf_column> v_gdf_cols_out(ncols);
-  v_gdf_cols_out[0].data = d_vc_out.data().get();
-  v_gdf_cols_out[0].dtype = GDF_INT32;
-  v_gdf_cols_out[0].size = nrows;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols_out(ncols);
+  v_gdf_arrow_cols_out[0].data = d_vc_out.data().get();
+  v_gdf_arrow_cols_out[0].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[0].size = nrows;
 
-  v_gdf_cols_out[1].data = d_vi_out.data().get();
-  v_gdf_cols_out[1].dtype = GDF_INT32;
-  v_gdf_cols_out[1].size = nrows;
+  v_gdf_arrow_cols_out[1].data = d_vi_out.data().get();
+  v_gdf_arrow_cols_out[1].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[1].size = nrows;
 
-  v_gdf_cols_out[2].data = d_vd_out.data().get();
-  v_gdf_cols_out[2].dtype = GDF_FLOAT64;
-  v_gdf_cols_out[2].size = nrows;
+  v_gdf_arrow_cols_out[2].data = d_vd_out.data().get();
+  v_gdf_arrow_cols_out[2].dtype = GDF_ARROW_FLOAT64;
+  v_gdf_arrow_cols_out[2].size = nrows;
 
-  std::vector<gdf_column*> h_cols_out(ncols);
+  std::vector<gdf_arrow_column*> h_cols_out(ncols);
   for(int i=0; i<ncols; ++i)
-    h_cols_out[i] = &v_gdf_cols_out[i];//
+    h_cols_out[i] = &v_gdf_arrow_cols_out[i];//
   
-  gdf_column** cols_out = &h_cols_out[0];//pointer semantics (2)
+  gdf_arrow_column** cols_out = &h_cols_out[0];//pointer semantics (2)
 
   d_keys.assign(nrows, 0);
-  gdf_column c_indx;
+  gdf_arrow_column c_indx;
   c_indx.data = d_keys.data().get();
   c_indx.size = nrows;
-  c_indx.dtype = GDF_INT32;
+  c_indx.dtype = GDF_ARROW_INT32;
   //}
     
-  gdf_group_by_sum((int)ncols,      // # columns
+  gdf_arrow_group_by_sum((int)ncols,      // # columns
                    cols,            //input cols
                    &c_agg,          //column to aggregate on
                    &c_indx,         //if not null return indices of re-ordered rows
@@ -331,30 +331,30 @@ void test_gb_count_api_2(const std::vector<int>& vc1,
   Vector<void*> d_cols(ncols, nullptr);
   Vector<int>   d_types(ncols, 0);
 
-  std::vector<gdf_column> v_gdf_cols(ncols);
-  v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-  v_gdf_cols[0].size = nrows;
-  v_gdf_cols[0].dtype = GDF_INT32;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+  v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+  v_gdf_arrow_cols[0].size = nrows;
+  v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-  v_gdf_cols[1].size = nrows;
-  v_gdf_cols[1].dtype = GDF_INT32;
+  v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+  v_gdf_arrow_cols[1].size = nrows;
+  v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-  v_gdf_cols[2].size = nrows;
-  v_gdf_cols[2].dtype = GDF_FLOAT64;
+  v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+  v_gdf_arrow_cols[2].size = nrows;
+  v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
 
-  gdf_column c_agg;
-  gdf_column c_vout;
+  gdf_arrow_column c_agg;
+  gdf_arrow_column c_vout;
 
   Vector<double> d_outd(sz, 0);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   c_agg.data = dd1.data().get();
   c_agg.size = nrows;
 
-  c_vout.dtype = GDF_INT32;
+  c_vout.dtype = GDF_ARROW_INT32;
   c_vout.data = d_vals.data().get();
   c_vout.size = nrows;
 
@@ -366,13 +366,13 @@ void test_gb_count_api_2(const std::vector<int>& vc1,
 
   //input
   //{
-  gdf_context ctxt{0, GDF_SORT, 0};
-  std::vector<gdf_column*> v_pcols(ncols);
+  gdf_arrow_context ctxt{0, GDF_ARROW_SORT, 0};
+  std::vector<gdf_arrow_column*> v_pcols(ncols);
   for(int i = 0; i < ncols; ++i)
     {
-      v_pcols[i] = &v_gdf_cols[i];
+      v_pcols[i] = &v_gdf_arrow_cols[i];
     }
-  gdf_column** cols = &v_pcols[0];//pointer semantic (2);
+  gdf_arrow_column** cols = &v_pcols[0];//pointer semantic (2);
   //}
 
   //output:
@@ -381,33 +381,33 @@ void test_gb_count_api_2(const std::vector<int>& vc1,
   Vector<int32_t> d_vi_out(nrows);
   Vector<double> d_vd_out(nrows);
     
-  std::vector<gdf_column> v_gdf_cols_out(ncols);
-  v_gdf_cols_out[0].data = d_vc_out.data().get();
-  v_gdf_cols_out[0].dtype = GDF_INT32;
-  v_gdf_cols_out[0].size = nrows;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols_out(ncols);
+  v_gdf_arrow_cols_out[0].data = d_vc_out.data().get();
+  v_gdf_arrow_cols_out[0].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[0].size = nrows;
 
-  v_gdf_cols_out[1].data = d_vi_out.data().get();
-  v_gdf_cols_out[1].dtype = GDF_INT32;
-  v_gdf_cols_out[1].size = nrows;
+  v_gdf_arrow_cols_out[1].data = d_vi_out.data().get();
+  v_gdf_arrow_cols_out[1].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[1].size = nrows;
 
-  v_gdf_cols_out[2].data = d_vd_out.data().get();
-  v_gdf_cols_out[2].dtype = GDF_FLOAT64;
-  v_gdf_cols_out[2].size = nrows;
+  v_gdf_arrow_cols_out[2].data = d_vd_out.data().get();
+  v_gdf_arrow_cols_out[2].dtype = GDF_ARROW_FLOAT64;
+  v_gdf_arrow_cols_out[2].size = nrows;
 
-  std::vector<gdf_column*> h_cols_out(ncols);
+  std::vector<gdf_arrow_column*> h_cols_out(ncols);
   for(int i=0; i<ncols; ++i)
-    h_cols_out[i] = &v_gdf_cols_out[i];//
+    h_cols_out[i] = &v_gdf_arrow_cols_out[i];//
   
-  gdf_column** cols_out = &h_cols_out[0];//pointer semantics (2)
+  gdf_arrow_column** cols_out = &h_cols_out[0];//pointer semantics (2)
 
   d_keys.assign(nrows, 0);
-  gdf_column c_indx;
+  gdf_arrow_column c_indx;
   c_indx.data = d_keys.data().get();
   c_indx.size = nrows;
-  c_indx.dtype = GDF_INT32;
+  c_indx.dtype = GDF_ARROW_INT32;
   //}
     
-  gdf_group_by_count((int)ncols,      // # columns
+  gdf_arrow_group_by_count((int)ncols,      // # columns
                    cols,            //input cols
                    &c_agg,          //column to aggregate on
                    &c_indx,         //if not null return indices of re-ordered rows
@@ -457,29 +457,29 @@ void test_gb_min_api_2(const std::vector<int>& vc1,
   Vector<void*> d_cols(ncols, nullptr);
   Vector<int>   d_types(ncols, 0);
 
-  std::vector<gdf_column> v_gdf_cols(ncols);
-  v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-  v_gdf_cols[0].size = nrows;
-  v_gdf_cols[0].dtype = GDF_INT32;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+  v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+  v_gdf_arrow_cols[0].size = nrows;
+  v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-  v_gdf_cols[1].size = nrows;
-  v_gdf_cols[1].dtype = GDF_INT32;
+  v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+  v_gdf_arrow_cols[1].size = nrows;
+  v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-  v_gdf_cols[2].size = nrows;
-  v_gdf_cols[2].dtype = GDF_FLOAT64;
+  v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+  v_gdf_arrow_cols[2].size = nrows;
+  v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
-  gdf_column c_agg;
-  gdf_column c_vout;
+  gdf_arrow_column c_agg;
+  gdf_arrow_column c_vout;
 
   Vector<double> d_outd(sz, 0);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   ///c_agg.data = dd1.data().get();
   c_agg.size = nrows;
 
-  c_vout.dtype = GDF_FLOAT64;
+  c_vout.dtype = GDF_ARROW_FLOAT64;
   c_vout.data = d_outd.data().get();
   c_vout.size = nrows;
 
@@ -492,18 +492,18 @@ void test_gb_min_api_2(const std::vector<int>& vc1,
   std::cout<<"aggregate = min on column:\n";
   print_v(d_col, std::cout);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   c_agg.data = d_col.data().get();
 
   //input
   //{
-  gdf_context ctxt{0, GDF_SORT, 0};
-  std::vector<gdf_column*> v_pcols(ncols);
+  gdf_arrow_context ctxt{0, GDF_ARROW_SORT, 0};
+  std::vector<gdf_arrow_column*> v_pcols(ncols);
   for(int i = 0; i < ncols; ++i)
     {
-      v_pcols[i] = &v_gdf_cols[i];
+      v_pcols[i] = &v_gdf_arrow_cols[i];
     }
-  gdf_column** cols = &v_pcols[0];//pointer semantic (2);
+  gdf_arrow_column** cols = &v_pcols[0];//pointer semantic (2);
   //}
 
   //output:
@@ -512,33 +512,33 @@ void test_gb_min_api_2(const std::vector<int>& vc1,
   Vector<int32_t> d_vi_out(nrows);
   Vector<double> d_vd_out(nrows);
     
-  std::vector<gdf_column> v_gdf_cols_out(ncols);
-  v_gdf_cols_out[0].data = d_vc_out.data().get();
-  v_gdf_cols_out[0].dtype = GDF_INT32;
-  v_gdf_cols_out[0].size = nrows;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols_out(ncols);
+  v_gdf_arrow_cols_out[0].data = d_vc_out.data().get();
+  v_gdf_arrow_cols_out[0].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[0].size = nrows;
 
-  v_gdf_cols_out[1].data = d_vi_out.data().get();
-  v_gdf_cols_out[1].dtype = GDF_INT32;
-  v_gdf_cols_out[1].size = nrows;
+  v_gdf_arrow_cols_out[1].data = d_vi_out.data().get();
+  v_gdf_arrow_cols_out[1].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[1].size = nrows;
 
-  v_gdf_cols_out[2].data = d_vd_out.data().get();
-  v_gdf_cols_out[2].dtype = GDF_FLOAT64;
-  v_gdf_cols_out[2].size = nrows;
+  v_gdf_arrow_cols_out[2].data = d_vd_out.data().get();
+  v_gdf_arrow_cols_out[2].dtype = GDF_ARROW_FLOAT64;
+  v_gdf_arrow_cols_out[2].size = nrows;
 
-  std::vector<gdf_column*> h_cols_out(ncols);
+  std::vector<gdf_arrow_column*> h_cols_out(ncols);
   for(int i=0; i<ncols; ++i)
-    h_cols_out[i] = &v_gdf_cols_out[i];//
+    h_cols_out[i] = &v_gdf_arrow_cols_out[i];//
   
-  gdf_column** cols_out = &h_cols_out[0];//pointer semantics (2)
+  gdf_arrow_column** cols_out = &h_cols_out[0];//pointer semantics (2)
 
   d_keys.assign(nrows, 0);
-  gdf_column c_indx;
+  gdf_arrow_column c_indx;
   c_indx.data = d_keys.data().get();
   c_indx.size = nrows;
-  c_indx.dtype = GDF_INT32;
+  c_indx.dtype = GDF_ARROW_INT32;
   //}
     
-  gdf_group_by_min((int)ncols,      // # columns
+  gdf_arrow_group_by_min((int)ncols,      // # columns
                    cols,            //input cols
                    &c_agg,          //column to aggregate on
                    &c_indx,         //if not null return indices of re-ordered rows
@@ -590,29 +590,29 @@ void test_gb_max_api_2(const std::vector<int>& vc1,
   Vector<void*> d_cols(ncols, nullptr);
   Vector<int>   d_types(ncols, 0);
 
-  std::vector<gdf_column> v_gdf_cols(ncols);
-  v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-  v_gdf_cols[0].size = nrows;
-  v_gdf_cols[0].dtype = GDF_INT32;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+  v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+  v_gdf_arrow_cols[0].size = nrows;
+  v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-  v_gdf_cols[1].size = nrows;
-  v_gdf_cols[1].dtype = GDF_INT32;
+  v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+  v_gdf_arrow_cols[1].size = nrows;
+  v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-  v_gdf_cols[2].size = nrows;
-  v_gdf_cols[2].dtype = GDF_FLOAT64;
+  v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+  v_gdf_arrow_cols[2].size = nrows;
+  v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
-  gdf_column c_agg;
-  gdf_column c_vout;
+  gdf_arrow_column c_agg;
+  gdf_arrow_column c_vout;
 
   Vector<double> d_outd(sz, 0);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   ///c_agg.data = dd1.data().get();
   c_agg.size = nrows;
 
-  c_vout.dtype = GDF_FLOAT64;
+  c_vout.dtype = GDF_ARROW_FLOAT64;
   c_vout.data = d_outd.data().get();
   c_vout.size = nrows;
 
@@ -625,18 +625,18 @@ void test_gb_max_api_2(const std::vector<int>& vc1,
   std::cout<<"aggregate = max on column:\n";
   print_v(d_col, std::cout);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   c_agg.data = d_col.data().get();
 
   //input
   //{
-  gdf_context ctxt{0, GDF_SORT, 0};
-  std::vector<gdf_column*> v_pcols(ncols);
+  gdf_arrow_context ctxt{0, GDF_ARROW_SORT, 0};
+  std::vector<gdf_arrow_column*> v_pcols(ncols);
   for(int i = 0; i < ncols; ++i)
     {
-      v_pcols[i] = &v_gdf_cols[i];
+      v_pcols[i] = &v_gdf_arrow_cols[i];
     }
-  gdf_column** cols = &v_pcols[0];//pointer semantic (2);
+  gdf_arrow_column** cols = &v_pcols[0];//pointer semantic (2);
   //}
 
   //output:
@@ -645,33 +645,33 @@ void test_gb_max_api_2(const std::vector<int>& vc1,
   Vector<int32_t> d_vi_out(nrows);
   Vector<double> d_vd_out(nrows);
     
-  std::vector<gdf_column> v_gdf_cols_out(ncols);
-  v_gdf_cols_out[0].data = d_vc_out.data().get();
-  v_gdf_cols_out[0].dtype = GDF_INT32;
-  v_gdf_cols_out[0].size = nrows;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols_out(ncols);
+  v_gdf_arrow_cols_out[0].data = d_vc_out.data().get();
+  v_gdf_arrow_cols_out[0].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[0].size = nrows;
 
-  v_gdf_cols_out[1].data = d_vi_out.data().get();
-  v_gdf_cols_out[1].dtype = GDF_INT32;
-  v_gdf_cols_out[1].size = nrows;
+  v_gdf_arrow_cols_out[1].data = d_vi_out.data().get();
+  v_gdf_arrow_cols_out[1].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[1].size = nrows;
 
-  v_gdf_cols_out[2].data = d_vd_out.data().get();
-  v_gdf_cols_out[2].dtype = GDF_FLOAT64;
-  v_gdf_cols_out[2].size = nrows;
+  v_gdf_arrow_cols_out[2].data = d_vd_out.data().get();
+  v_gdf_arrow_cols_out[2].dtype = GDF_ARROW_FLOAT64;
+  v_gdf_arrow_cols_out[2].size = nrows;
 
-  std::vector<gdf_column*> h_cols_out(ncols);
+  std::vector<gdf_arrow_column*> h_cols_out(ncols);
   for(int i=0; i<ncols; ++i)
-    h_cols_out[i] = &v_gdf_cols_out[i];//
+    h_cols_out[i] = &v_gdf_arrow_cols_out[i];//
   
-  gdf_column** cols_out = &h_cols_out[0];//pointer semantics (2)
+  gdf_arrow_column** cols_out = &h_cols_out[0];//pointer semantics (2)
 
   d_keys.assign(nrows, 0);
-  gdf_column c_indx;
+  gdf_arrow_column c_indx;
   c_indx.data = d_keys.data().get();
   c_indx.size = nrows;
-  c_indx.dtype = GDF_INT32;
+  c_indx.dtype = GDF_ARROW_INT32;
   //}
     
-  gdf_group_by_max((int)ncols,      // # columns
+  gdf_arrow_group_by_max((int)ncols,      // # columns
                    cols,            //input cols
                    &c_agg,          //column to aggregate on
                    &c_indx,         //if not null return indices of re-ordered rows
@@ -724,30 +724,30 @@ void test_gb_avg_api_2(const std::vector<int>& vc1,
   Vector<void*> d_cols(ncols, nullptr);
   Vector<int>   d_types(ncols, 0);
 
-  std::vector<gdf_column> v_gdf_cols(ncols);
-  v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-  v_gdf_cols[0].size = nrows;
-  v_gdf_cols[0].dtype = GDF_INT32;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+  v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+  v_gdf_arrow_cols[0].size = nrows;
+  v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-  v_gdf_cols[1].size = nrows;
-  v_gdf_cols[1].dtype = GDF_INT32;
+  v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+  v_gdf_arrow_cols[1].size = nrows;
+  v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-  v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-  v_gdf_cols[2].size = nrows;
-  v_gdf_cols[2].dtype = GDF_FLOAT64;
+  v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+  v_gdf_arrow_cols[2].size = nrows;
+  v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
 
-  gdf_column c_agg;
-  gdf_column c_vout;
+  gdf_arrow_column c_agg;
+  gdf_arrow_column c_vout;
 
   Vector<double> d_outd(sz, 0);
 
-  c_agg.dtype = GDF_FLOAT64;
+  c_agg.dtype = GDF_ARROW_FLOAT64;
   c_agg.data = dd1.data().get();
   c_agg.size = nrows;
 
-  c_vout.dtype = GDF_FLOAT64;
+  c_vout.dtype = GDF_ARROW_FLOAT64;
   c_vout.data = d_outd.data().get();
   c_vout.size = nrows;
 
@@ -759,13 +759,13 @@ void test_gb_avg_api_2(const std::vector<int>& vc1,
 
   //input
   //{
-  gdf_context ctxt{0, GDF_SORT, 0};
-  std::vector<gdf_column*> v_pcols(ncols);
+  gdf_arrow_context ctxt{0, GDF_ARROW_SORT, 0};
+  std::vector<gdf_arrow_column*> v_pcols(ncols);
   for(int i = 0; i < ncols; ++i)
     {
-      v_pcols[i] = &v_gdf_cols[i];
+      v_pcols[i] = &v_gdf_arrow_cols[i];
     }
-  gdf_column** cols = &v_pcols[0];//pointer semantic (2);
+  gdf_arrow_column** cols = &v_pcols[0];//pointer semantic (2);
   //}
 
   //output:
@@ -774,33 +774,33 @@ void test_gb_avg_api_2(const std::vector<int>& vc1,
   Vector<int32_t> d_vi_out(nrows);
   Vector<double> d_vd_out(nrows);
     
-  std::vector<gdf_column> v_gdf_cols_out(ncols);
-  v_gdf_cols_out[0].data = d_vc_out.data().get();
-  v_gdf_cols_out[0].dtype = GDF_INT32;
-  v_gdf_cols_out[0].size = nrows;
+  std::vector<gdf_arrow_column> v_gdf_arrow_cols_out(ncols);
+  v_gdf_arrow_cols_out[0].data = d_vc_out.data().get();
+  v_gdf_arrow_cols_out[0].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[0].size = nrows;
 
-  v_gdf_cols_out[1].data = d_vi_out.data().get();
-  v_gdf_cols_out[1].dtype = GDF_INT32;
-  v_gdf_cols_out[1].size = nrows;
+  v_gdf_arrow_cols_out[1].data = d_vi_out.data().get();
+  v_gdf_arrow_cols_out[1].dtype = GDF_ARROW_INT32;
+  v_gdf_arrow_cols_out[1].size = nrows;
 
-  v_gdf_cols_out[2].data = d_vd_out.data().get();
-  v_gdf_cols_out[2].dtype = GDF_FLOAT64;
-  v_gdf_cols_out[2].size = nrows;
+  v_gdf_arrow_cols_out[2].data = d_vd_out.data().get();
+  v_gdf_arrow_cols_out[2].dtype = GDF_ARROW_FLOAT64;
+  v_gdf_arrow_cols_out[2].size = nrows;
 
-  std::vector<gdf_column*> h_cols_out(ncols);
+  std::vector<gdf_arrow_column*> h_cols_out(ncols);
   for(int i=0; i<ncols; ++i)
-    h_cols_out[i] = &v_gdf_cols_out[i];//
+    h_cols_out[i] = &v_gdf_arrow_cols_out[i];//
   
-  gdf_column** cols_out = &h_cols_out[0];//pointer semantics (2)
+  gdf_arrow_column** cols_out = &h_cols_out[0];//pointer semantics (2)
 
   d_keys.assign(nrows, 0);
-  gdf_column c_indx;
+  gdf_arrow_column c_indx;
   c_indx.data = d_keys.data().get();
   c_indx.size = nrows;
-  c_indx.dtype = GDF_INT32;
+  c_indx.dtype = GDF_ARROW_INT32;
   //}
     
-  gdf_group_by_avg((int)ncols,      // # columns
+  gdf_arrow_group_by_avg((int)ncols,      // # columns
                    cols,            //input cols
                    &c_agg,          //column to aggregate on
                    &c_indx,         //if not null return indices of re-ordered rows
@@ -853,34 +853,34 @@ int main(void)
     std::vector<void*> v_cols{static_cast<void*>(dc1.data().get()),
     	                      static_cast<void*>(di1.data().get()),
     	                      static_cast<void*>(dd1.data().get())};
-    std::vector<int> v_types{static_cast<int>(GDF_INT32),
-    	                     static_cast<int>(GDF_INT32),
-    	                     static_cast<int>(GDF_FLOAT64)};
+    std::vector<int> v_types{static_cast<int>(GDF_ARROW_INT32),
+    	                     static_cast<int>(GDF_ARROW_INT32),
+    	                     static_cast<int>(GDF_ARROW_FLOAT64)};
 
     
     Vector<void*> d_cols(ncols, nullptr);
     Vector<int>   d_types(ncols, 0);
     Vector<size_t> d_indx(nrows, 0);
     
-    std::vector<gdf_column> v_gdf_cols(ncols);
-    v_gdf_cols[0].data = static_cast<void*>(dc1.data().get());
-    v_gdf_cols[0].size = nrows;
-    v_gdf_cols[0].dtype = GDF_INT32;
+    std::vector<gdf_arrow_column> v_gdf_arrow_cols(ncols);
+    v_gdf_arrow_cols[0].data = static_cast<void*>(dc1.data().get());
+    v_gdf_arrow_cols[0].size = nrows;
+    v_gdf_arrow_cols[0].dtype = GDF_ARROW_INT32;
 
-    v_gdf_cols[1].data = static_cast<void*>(di1.data().get());
-    v_gdf_cols[1].size = nrows;
-    v_gdf_cols[1].dtype = GDF_INT32;
+    v_gdf_arrow_cols[1].data = static_cast<void*>(di1.data().get());
+    v_gdf_arrow_cols[1].size = nrows;
+    v_gdf_arrow_cols[1].dtype = GDF_ARROW_INT32;
 
-    v_gdf_cols[2].data = static_cast<void*>(dd1.data().get());
-    v_gdf_cols[2].size = nrows;
-    v_gdf_cols[2].dtype = GDF_FLOAT64;
+    v_gdf_arrow_cols[2].data = static_cast<void*>(dd1.data().get());
+    v_gdf_arrow_cols[2].size = nrows;
+    v_gdf_arrow_cols[2].dtype = GDF_ARROW_FLOAT64;
 
-    gdf_column* h_columns = &v_gdf_cols[0];
+    gdf_arrow_column* h_columns = &v_gdf_arrow_cols[0];
     void** d_col_data = d_cols.data().get();
     int* d_col_types = d_types.data().get();
     size_t* ptr_dv = d_indx.data().get();
 
-    gdf_order_by(nrows, h_columns, ncols, d_col_data, d_col_types, ptr_dv);
+    gdf_arrow_order_by(nrows, h_columns, ncols, d_col_data, d_col_types, ptr_dv);
     
   
     std::cout<<"multisort order:\n";

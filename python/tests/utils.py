@@ -1,11 +1,11 @@
 
 import numpy as np
 
-from libgdf_cffi import ffi, libgdf
+from libgdf_arrow_cffi import ffi, libgdf_arrow
 
 
 def new_column():
-    return ffi.new('gdf_column*')
+    return ffi.new('gdf_arrow_column*')
 
 
 def unwrap_devary(devary):
@@ -14,13 +14,13 @@ def unwrap_devary(devary):
 
 def get_dtype(dtype):
     return {
-        np.float64: libgdf.GDF_FLOAT64,
-        np.float32: libgdf.GDF_FLOAT32,
-        np.int64:   libgdf.GDF_INT64,
-        np.int32:   libgdf.GDF_INT32,
-        np.int16:   libgdf.GDF_INT16,
-        np.int8:    libgdf.GDF_INT8,
-        np.bool_:   libgdf.GDF_INT8,
+        np.float64: libgdf_arrow.GDF_ARROW_FLOAT64,
+        np.float32: libgdf_arrow.GDF_ARROW_FLOAT32,
+        np.int64:   libgdf_arrow.GDF_ARROW_INT64,
+        np.int32:   libgdf_arrow.GDF_ARROW_INT32,
+        np.int16:   libgdf_arrow.GDF_ARROW_INT16,
+        np.int8:    libgdf_arrow.GDF_ARROW_INT8,
+        np.bool_:   libgdf_arrow.GDF_ARROW_INT8,
     }[np.dtype(dtype).type]
 
 
