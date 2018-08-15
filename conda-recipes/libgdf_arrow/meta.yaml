@@ -3,7 +3,7 @@
 # Usage:
 #   conda build -c defaults -c conda-forge .
 package:
-  name: libgdf
+  name: libgdf_arrow
   version: {{ environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') }}
 
 source:
@@ -28,8 +28,8 @@ requirements:
 
 test:
   commands:
-    - test -f $PREFIX/include/gdf/gdf.h    # [unix or osx]
-    - test -f $PREFIX/lib/libgdf.dylib     # [osx]
+    - test -f $PREFIX/include/gdf-arrow/gdf-arrow.h    # [unix or osx]
+    - test -f $PREFIX/lib/libgdf-arrow.dylib     # [osx]
 
 about:
   home: http://gpuopenanalytics.com/

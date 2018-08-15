@@ -34,10 +34,10 @@ install:
   - sudo apt-get install libboost-all-dev
 
 script:
-  # build ligdf
-  - source ./travisci/build_libgdf.sh
-  # build libgdf_cffi
-  - source ./travisci/build_libgdf_cffi.sh
+  # build libgdf_arrow
+  - source ./travisci/build_libgdf_arrow.sh
+  # build libgdf_arrow_cffi
+  - source ./travisci/build_libgdf_arrow_cffi.sh
 
 after_success:
   - source ./travisci/upload.sh

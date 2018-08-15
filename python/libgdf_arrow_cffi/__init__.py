@@ -3,11 +3,11 @@ from __future__ import absolute_import
 import os
 import sys
 
-from .wrapper import _libgdf_wrapper
-from .wrapper import GDFError           # re-exported
+from .wrapper import _libgdf_arrow_wrapper
+from .wrapper import GDFARROWError           # re-exported
 
 try:
-    from .libgdf_cffi import ffi
+    from .libgdf_arrow_cffi import ffi
 except ImportError:
     pass
 else:
@@ -15,9 +15,9 @@ else:
         if os.name == 'posix':
             # TODO this will need to be changed when packaged for distribution
             if sys.platform == 'darwin':
-                path = 'libgdf.dylib'
+                path = 'libgdf-arrow.dylib'
             else:
-                path = 'libgdf.so'
+                path = 'libgdf-arrow.so'
         else:
             raise NotImplementedError('OS {} not supported'.format(os.name))
         # Prefer local version of the library if it exists
@@ -27,7 +27,7 @@ else:
         else:
             return path
 
-    libgdf_api = ffi.dlopen(_get_lib_name())
-    libgdf = _libgdf_wrapper(ffi, libgdf_api)
+    libgdf_arrow_api = ffi.dlopen(_get_lib_name())
+    libgdf_arrow = _libgdf_arrow_wrapper(ffi, libgdf_arrow_api)
 
-    del _libgdf_wrapper
+    del _libgdf_arrow_wrapper

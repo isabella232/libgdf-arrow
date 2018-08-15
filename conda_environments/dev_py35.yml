@@ -1,4 +1,4 @@
-name: libgdf_dev
+name: libgdf_arrow_dev
 channels:
 - numba
 - conda-forge

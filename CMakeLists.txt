@@ -19,12 +19,12 @@
 #    $ mkdir build       # create directory for out-of-source build
 #    $ cd build          # enter the build directory
 #    $ cmake ..          # configure build system
-#    $ make              # make libgdf
+#    $ make              # make libgdf-arrow
 #    $ make pytest       # trigger test
 #    $ make pytest-ci    # trigger test with jUnit.xml output
-#    $ make install      # install libgdf
+#    $ make install      # install libgdf-arrow
 
-PROJECT(libgdf)
+PROJECT(libgdf-arrow)
 
 cmake_minimum_required(VERSION 2.8)  # not sure about version required
 
@@ -107,7 +107,7 @@ if(HT_LEGACY_ALLOCATOR)
 endif()
 
 
-cuda_add_library(gdf SHARED
+cuda_add_library(gdf-arrow SHARED
     src/column.cpp
     src/cudautils.cu
     src/errorhandling.cpp
@@ -116,9 +116,9 @@ cuda_add_library(gdf SHARED
 
 if (ARROW_NUMERIC_VERSION EQUAL 900)
   # arrow-0.9 requires boost_regex
-  target_link_libraries(gdf arrow boost_regex)
+  target_link_libraries(gdf-arrow arrow boost_regex)
 else()
-  target_link_libraries(gdf arrow)
+  target_link_libraries(gdf-arrow arrow)
 endif()
 
 # Command to symlink files into the build directory
@@ -128,19 +128,19 @@ add_custom_command(  # link the include directory
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_custom_command(  # link the python directory
-    OUTPUT libgdf_cffi setup.py tests
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/python/libgdf_cffi libgdf_cffi
+    OUTPUT libgdf_arrow_cffi setup.py tests
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/python/libgdf_arrow_cffi libgdf_arrow_cffi
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/python/tests tests
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_SOURCE_DIR}/python/setup.py setup.py)
 
 add_custom_command(  # trigger cffi to build the wrapper
-    OUTPUT libgdf_cffi/libgdf_cffi.py
+    OUTPUT libgdf_arrow_cffi/libgdf_arrow_cffi.py
     COMMAND python setup.py build_ext --inplace
-    DEPENDS setup.py libgdf_cffi include)
+    DEPENDS setup.py libgdf_arrow_cffi include)
 
 add_custom_target(   # target to link the python files and trigger cffi
     copy_python
-    DEPENDS libgdf_cffi/libgdf_cffi.py)
+    DEPENDS libgdf_arrow_cffi/libgdf_arrow_cffi.py)
 
 # The test target
 add_custom_target(pytest DEPENDS copy_python)
@@ -155,8 +155,8 @@ add_custom_command(TARGET pytest POST_BUILD
                    WORKING_DIRECTORY --cache-clear --junitxml=junit.xml tests)
 
 # The install target
-install(TARGETS gdf LIBRARY DESTINATION lib)
-install(DIRECTORY include/gdf DESTINATION include)
+install(TARGETS gdf-arrow LIBRARY DESTINATION lib)
+install(DIRECTORY include/gdf-arrow DESTINATION include)
 
 # Configure the C++ tests
 find_package(GTest QUIET)

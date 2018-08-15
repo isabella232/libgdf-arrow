@@ -1,6 +1,6 @@
 {% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0.dev').lstrip('v') %}
 package:
-  name: libgdf_cffi
+  name: libgdf_arrow_cffi
   version: {{ version }}
 
 source:
@@ -19,13 +19,13 @@ requirements:
     - cffi
     - setuptools
   run:
-    - libgdf  {{ version }}
+    - libgdf_arrow  {{ version }}
     - python x.x
     - cffi
 
 test:
   commands:
-    - python -c "import libgdf_cffi"
+    - python -c "import libgdf_arrow_cffi"
 
 about:
   home: http://gpuopenanalytics.com/
