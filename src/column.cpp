@@ -26,6 +26,18 @@ gdf_error gdf_column_view_augmented(gdf_column *column, void *data, gdf_valid_ty
 	return GDF_SUCCESS;
 }
 
+gdf_error gdf_column_free(gdf_column *column) {
+
+  if(nullptr != column->data)
+  {
+    CUDA_TRY( cudaFree(column->data)  );
+  }
+  if(nullptr != column->valid)
+  {
+    CUDA_TRY( cudaFree(column->valid) );
+  }
+  return GDF_SUCCESS;
+}
 
 gdf_error get_column_byte_width(gdf_column * col, int * width){
 	
