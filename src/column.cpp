@@ -1,5 +1,6 @@
 #include <gdf-arrow/gdf-arrow.h>
-
+#include <gdf-arrow/errorutils.h>
+#include <cuda_runtime_api.h>
 
 gdf_size_type gdf_column_sizeof() {
 	return sizeof(gdf_column);
