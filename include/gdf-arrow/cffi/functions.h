@@ -9,6 +9,8 @@ gdf_error gdf_column_view(gdf_column *column, void *data, gdf_valid_type *valid,
 
 gdf_error gdf_column_view_augmented(gdf_column *column, void *data, gdf_valid_type *valid,
 						gdf_size_type size, gdf_dtype dtype, gdf_size_type null_count);
+
+gdf_error gdf_column_free(gdf_column *column);
 /* error handling */
 
 const char * gdf_error_get_name(gdf_error errcode);
